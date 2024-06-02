@@ -21,6 +21,10 @@ class Palette:
         ...
 
 
+def get_color(Palette, value):
+    return Palette.get_color(value)
+
+
 def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
     """Adds colors to df.
 
@@ -35,11 +39,17 @@ def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
         (should be compatible with df's winnter_name) and palettes.
 
     Returns:
-        A new df. The columns are all the same, with the addition of
-        colors column.
+        A new df, with three columns: name, total (old) and color (new).
     """
+    df["winner_percent"] = (df["winner_votes"] / df["total"] * 100).round(2)
+    df["palette"] = df["winner_name"].apply(lambda x: colors[x])
+    df["color"] = df.apply(lambda x: get_color(x["palette"],
+                                               x["winner_percent"]), axis=1)
+    return df[["name", "total", "color"]]
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    ...
+    df = pd.read_excel("example0.xlsx", header=0)
+    df = add_colors(df, {"Garza": Palette(["#FFB2B2"], [40, 50])})
+    print(df.to_string())
