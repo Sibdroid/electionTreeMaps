@@ -52,8 +52,14 @@ def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
 
 def make_tree_map(df: pd.DataFrame) -> None:
     squarify.plot(sizes=df["total"], label=df["name"],
-                  color=df["color"], norm_y=10, norm_x=10)
-    plt.show()
+                  color=df["color"], norm_y=10, norm_x=10,
+                  edgecolor="white", linewidth=1)
+    plt.gca().set_xlim(0, 10)
+    plt.gca().set_ylim(0, 10)
+    plt.gca().invert_yaxis()
+    plt.gca().get_xaxis().set_visible(False)
+    plt.gca().get_yaxis().set_visible(False)
+    plt.savefig("test0.svg", bbox_inches="tight")
 
 
 # Press the green button in the gutter to run the script.
