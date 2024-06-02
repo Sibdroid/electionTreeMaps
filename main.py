@@ -21,7 +21,7 @@ class Palette:
         ...
 
 
-def get_color(Palette, value):
+def _get_color(Palette, value):
     return Palette.get_color(value)
 
 
@@ -43,13 +43,28 @@ def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
     """
     df["winner_percent"] = (df["winner_votes"] / df["total"] * 100).round(2)
     df["palette"] = df["winner_name"].apply(lambda x: colors[x])
-    df["color"] = df.apply(lambda x: get_color(x["palette"],
-                                               x["winner_percent"]), axis=1)
-    return df[["name", "total", "color"]]
+    df["color"] = df.apply(lambda x: _get_color(x["palette"],
+                                                x["winner_percent"]), axis=1)
+    df = df[["name", "total", "color"]]
+    # Sorting is necessary for the squarify
+    return df.sort_values("total", ascending=False)
+
+
+def make_tree_map(df: pd.DataFrame) -> None:
+    squarify.plot(sizes=df["total"], label=df["name"],
+                  color=df["color"], norm_y=10, norm_x=10)
+    plt.show()
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    red_palette = Palette(["#FFF0F5", "#FFE0EA", "#FFC8CD", "#FFB2B2",
+                           "#E27F7F", "#D75D5D", "#D72F30", "#C21B18",
+                           "#A80000"], [i*10 for i in range(1, 11)])
+    teal_palette = Palette(["#E3F7F7", "#D0F9F9", "#ACF2F2", "#7DDDDD",
+                            "#51C2C2", "#2AACAC", "#009696", "#008080",
+                            "#006666"], [i*10 for i in range(1, 11)])
     df = pd.read_excel("example0.xlsx", header=0)
-    df = add_colors(df, {"Garza": Palette(["#FFB2B2"], [40, 50])})
+    df = add_colors(df, {"Furman": red_palette, "Garza": teal_palette})
     print(df.to_string())
+    make_tree_map(df)
