@@ -52,16 +52,20 @@ def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
 
 
 def make_tree_map(df: pd.DataFrame) -> plt.Axes:
-    squarify.plot(sizes=df["total"], label=df["name"],
+    labels = [i for i in df["name"]]
+    sizes = [i for i in df["total"]]
+    num_labels_in_legend = 5
+    ax = squarify.plot(sizes, label=labels[:-num_labels_in_legend]+[""]*num_labels_in_legend,
                   color=df["color"], norm_y=10, norm_x=10,
                   edgecolor="white", linewidth=1)
-    plt.gca().set_xlim(0, 10)
-    plt.gca().set_ylim(0, 10)
-    plt.gca().invert_yaxis()
-    plt.gca().get_xaxis().set_visible(False)
-    plt.gca().get_yaxis().set_visible(False)
-    plt.savefig("test0.svg", bbox_inches="tight")
-    return plt.gca()
+    ax.axis('off')
+    ax.invert_xaxis()
+    ax.set_aspect('equal')
+    plt.legend(handles=ax.containers[0][:-num_labels_in_legend - 1:-1],
+               labels=labels[:-num_labels_in_legend - 1:-1],
+               handlelength=1, handleheight=1)
+    plt.show()
+    #plt.savefig("test0.svg", bbox_inches="tight")
 
 
 # Press the green button in the gutter to run the script.
@@ -75,6 +79,4 @@ if __name__ == '__main__':
     df = pd.read_excel("example0.xlsx", header=0)
     df = add_colors(df, {"Furman": red_palette, "Garza": teal_palette})
     ax = make_tree_map(df)
-    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
-                 ax.get_xticklabels() + ax.get_yticklabels()):
-        print(item)
+    #plt.show()
