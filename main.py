@@ -1,6 +1,7 @@
 import squarify
 import matplotlib.pyplot as plt
 import pandas as pd
+from pprint import pprint
 
 
 class Palette:
@@ -50,7 +51,7 @@ def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
     return df.sort_values("total", ascending=False)
 
 
-def make_tree_map(df: pd.DataFrame) -> None:
+def make_tree_map(df: pd.DataFrame) -> plt.Axes:
     squarify.plot(sizes=df["total"], label=df["name"],
                   color=df["color"], norm_y=10, norm_x=10,
                   edgecolor="white", linewidth=1)
@@ -60,6 +61,7 @@ def make_tree_map(df: pd.DataFrame) -> None:
     plt.gca().get_xaxis().set_visible(False)
     plt.gca().get_yaxis().set_visible(False)
     plt.savefig("test0.svg", bbox_inches="tight")
+    return plt.gca()
 
 
 # Press the green button in the gutter to run the script.
@@ -72,5 +74,7 @@ if __name__ == '__main__':
                             "#006666"], [i*10 for i in range(1, 11)])
     df = pd.read_excel("example0.xlsx", header=0)
     df = add_colors(df, {"Furman": red_palette, "Garza": teal_palette})
-    print(df.to_string())
-    make_tree_map(df)
+    ax = make_tree_map(df)
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
+                 ax.get_xticklabels() + ax.get_yticklabels()):
+        print(item)
