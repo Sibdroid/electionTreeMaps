@@ -1,6 +1,7 @@
 import squarify
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 from pprint import pprint
 
 
@@ -54,18 +55,17 @@ def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
 def make_tree_map(df: pd.DataFrame) -> plt.Axes:
     labels = [i for i in df["name"]]
     sizes = [i for i in df["total"]]
-    num_labels_in_legend = 5
+    num_labels_in_legend = np.count_nonzero(np.array(sizes) / sum(sizes) < 0.02)
     ax = squarify.plot(sizes, label=labels[:-num_labels_in_legend]+[""]*num_labels_in_legend,
                   color=df["color"], norm_y=10, norm_x=10,
                   edgecolor="white", linewidth=1)
     ax.axis('off')
-    ax.invert_xaxis()
-    ax.set_aspect('equal')
-    plt.legend(handles=ax.containers[0][:-num_labels_in_legend - 1:-1],
+    ax.invert_yaxis()
+    leg = plt.legend(handles=ax.containers[0][:-num_labels_in_legend - 1:-1],
                labels=labels[:-num_labels_in_legend - 1:-1],
                handlelength=1, handleheight=1)
-    plt.show()
-    #plt.savefig("test0.svg", bbox_inches="tight")
+    leg.get_frame().set_linewidth(0.0)
+    plt.savefig("test1.svg", bbox_inches="tight")
 
 
 # Press the green button in the gutter to run the script.
