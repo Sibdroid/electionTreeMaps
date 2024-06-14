@@ -2,7 +2,6 @@ import squarify
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from pprint import pprint
 
 
 class Palette:
@@ -52,31 +51,35 @@ def add_colors(df: pd.DataFrame, colors: dict[str, Palette]) -> pd.DataFrame:
     return df.sort_values("total", ascending=False)
 
 
-def make_tree_map(df: pd.DataFrame) -> plt.Axes:
+def make_tree_map(df: pd.DataFrame):
     labels = [i for i in df["name"]]
     sizes = [i for i in df["total"]]
     num_labels_in_legend = np.count_nonzero(np.array(sizes) / sum(sizes) < 0.02)
-    ax = squarify.plot(sizes, label=labels[:-num_labels_in_legend]+[""]*num_labels_in_legend,
+    if num_labels_in_legend:
+        updated_labels = labels[:-num_labels_in_legend]+[""]*num_labels_in_legend
+    else:
+        updated_labels = labels
+    ax = squarify.plot(sizes, label=updated_labels,
                   color=df["color"], norm_y=10, norm_x=10,
                   edgecolor="white", linewidth=1)
     ax.axis('off')
     ax.invert_yaxis()
-    leg = plt.legend(handles=ax.containers[0][:-num_labels_in_legend - 1:-1],
-               labels=labels[:-num_labels_in_legend - 1:-1],
-               handlelength=1, handleheight=1)
-    leg.get_frame().set_linewidth(0.0)
+    #leg = plt.legend(handles=ax.containers[0][:-num_labels_in_legend - 1:-1],
+    #           labels=labels[:-num_labels_in_legend - 1:-1],
+    #           handlelength=1, handleheight=1)
+    #leg.get_frame().set_linewidth(0.0)
     plt.savefig("test1.svg", bbox_inches="tight")
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    red_palette = Palette(["#FFF0F5", "#FFE0EA", "#FFC8CD", "#FFB2B2",
-                           "#E27F7F", "#D75D5D", "#D72F30", "#C21B18",
-                           "#A80000"], [i*10 for i in range(1, 11)])
-    teal_palette = Palette(["#E3F7F7", "#D0F9F9", "#ACF2F2", "#7DDDDD",
-                            "#51C2C2", "#2AACAC", "#009696", "#008080",
-                            "#006666"], [i*10 for i in range(1, 11)])
-    df = pd.read_excel("example0.xlsx", header=0)
-    df = add_colors(df, {"Furman": red_palette, "Garza": teal_palette})
+    ovp_palette = Palette(["#D0F9F9", "#ACF2F2", "#7DDDDD"], [20, 30, 40])
+    fpo_palette = Palette(["#DFEEFF", "#BDD3FF", "#A5B0FF"], [20, 30, 40])
+    spo_palette = Palette(["#FFE0EA", "#FFC8CD", "#FFB2B2"], [20, 30, 40])
+    df = pd.read_excel("osterreich.xlsx", header=0)
+    df = add_colors(df, {"FPO": fpo_palette,
+                         "OVP": ovp_palette,
+                         "SPO": spo_palette})
+    print(df.to_string())
     ax = make_tree_map(df)
     #plt.show()
